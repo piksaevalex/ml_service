@@ -1,7 +1,7 @@
 from flask import jsonify, json
 from flask_restx import Resource
 from app import api
-from .models import *
+from .models import fit_model, predict_model, delete_model, Model_classes, models_store
 from .const import HttpStatus
 from flask_restx import reqparse
 
@@ -22,10 +22,6 @@ fit_parser.add_argument('params', help='Model params')
 fit_parser.add_argument('x', help='X data with out target', action='append')
 fit_parser.add_argument('y', help='Y data, only target', action='append')
 
-predict_parser = reqparse.RequestParser()
-predict_parser.add_argument('model_name', help='Name of model')
-predict_parser.add_argument('x', help='X data with out target', action='append')
-
 delete_parser = reqparse.RequestParser()
 delete_parser.add_argument('model_name', help='Name of model')
 
@@ -44,8 +40,8 @@ class models(Resource):
         try:
             args = fit_parser.parse_args()
             params = json.loads(args.params.replace("'", "\""))
-            fit_model(args.model_type, params, fix_list(args.x), fix_list(args.y))
-            return get_common_response([])
+            model_name = fit_model(args.model_type, params, fix_list(args.x), fix_list(args.y))
+            return get_common_response(model_name)
         except Exception as e:
             return get_error_response(e)
 
@@ -59,6 +55,11 @@ class models(Resource):
             return get_error_response(e)
 
 
+predict_parser = reqparse.RequestParser()
+predict_parser.add_argument('model_name', help='Name of model')
+predict_parser.add_argument('x', help='X data with out target', action='append')
+
+
 @api.route('/api/v1/models/predict')
 class predict(Resource):
     @api.expect(predict_parser)
@@ -66,7 +67,7 @@ class predict(Resource):
         try:
             args = predict_parser.parse_args()
             y_pred = predict_model(args.model_name, fix_list(args.x))
-            return get_common_response(y_pred.tolist())
+            return get_common_response(y_pred)
         except Exception as e:
             return get_error_response(e)
 

@@ -1,4 +1,5 @@
 from app import app
+from app.module.controller import *
 
 
 if __name__ == '__main__':
