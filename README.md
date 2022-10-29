@@ -22,13 +22,13 @@ python3 main.py
 
 #### 3. Обучение модели  
 **POST**  
-> http://localhost:5000/api/v1/models 
+> http://localhost:5000/api/v1/models/fit  
 > 
 body:  
 ```
 {  
     "model_type": "Ridge",  
-    "params": "{'alpha': 0.001}",  
+    "params": "{"alpha": 0.001}",  
     "x": [[0.0,0.0],[1.0,0.0],[2.0,3.0]],  
     "y": [0.0,1.0,2.0]  
 }  
