@@ -1,4 +1,10 @@
 import glob
+import os
+from sklearn.linear_model import Ridge
+from sklearn.ensemble import RandomForestRegressor
+
+MODEL_DIR = 'fitted_models'
+MODEL_CLASSES = {'Ridge': Ridge, 'RandomForestRegressor': RandomForestRegressor}
 
 
 def restore_models(model_dir: str) -> dict:
@@ -8,7 +14,13 @@ def restore_models(model_dir: str) -> dict:
     :return: Список предобученных моделей.
     """
     files = glob.glob(f'./{model_dir}/*')
-    models_store = {}
+    models = {}
     for file in files:
-        models_store[file.split('/')[-1][:-4]] = file
-    return models_store
+        models[file.split('/')[-1][:-4]] = file
+    return models
+
+
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
+
+models_store = restore_models(MODEL_DIR)

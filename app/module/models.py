@@ -1,16 +1,7 @@
 import pickle
 import numpy as np
 import os
-from .helpers import restore_models
-from sklearn.linear_model import Ridge
-from sklearn.ensemble import RandomForestRegressor
-
-model_dir = 'fitted_models'
-if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
-
-Model_classes = ['Ridge', 'RandomForestRegressor']
-models_store = restore_models(model_dir)
+from .storage import MODEL_CLASSES, MODEL_DIR, models_store
 
 
 def fit_model(model_type: str, params: dict, x: list, y: list) -> str:
@@ -24,13 +15,17 @@ def fit_model(model_type: str, params: dict, x: list, y: list) -> str:
     """
     x = np.array(x)
     y = np.array(y)
-    model = eval(model_type)(**params)
+    model = MODEL_CLASSES.get(model_type)
+    if model is None:
+        raise FileNotFoundError('Данная модель не найдена, '
+                                'используйте GET model_classes для получения доступных моделей')
+    model = model(**params)
     model.fit(x, y)
     model_name = model.__str__()
-    with open(os.path.join(model_dir, f'{model_name}.pkl'), 'wb') as f:
+    with open(os.path.join(MODEL_DIR, f'{model_name}.pkl'), 'wb') as f:
         pickle.dump(model, f)
 
-    models_store[model_name] = os.path.join(model_dir, f'{model_name}.pkl')
+    models_store[model_name] = os.path.join(MODEL_DIR, f'{model_name}.pkl')
     return model_name
 
 
@@ -46,7 +41,7 @@ def predict_model(model_name: str, x: list) -> list:
         with open(model_name_path, 'rb') as f:
             model = pickle.load(f)
     except KeyError:
-        raise KeyError('Данная модель не найдена')
+        raise FileNotFoundError('Данная модель не найдена')
 
     y_pred = model.predict(x)
     return y_pred.tolist()
@@ -63,4 +58,4 @@ def delete_model(model_name: str) -> None:
         os.remove(model_path)
         del models_store[model_name]
     except KeyError:
-        raise KeyError('Данная модель не найдена')
+        raise FileNotFoundError('Данная модель не найдена')
