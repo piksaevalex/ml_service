@@ -1,0 +1,10 @@
+.git
+.idea
+.cache
+.DS_Store
+venv
+db-data
+kube
+*.md
+!README*.md
+__pycache__

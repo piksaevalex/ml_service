@@ -1,8 +1,8 @@
 from flask import jsonify, json
 from flask_restx import Resource, fields, reqparse
+from app.module.logic import get_model_classes, get_models, fit_model, predict_model, delete_model
+from app.flask_api.http import HttpStatus
 from app import api
-from .models import fit_model, predict_model, delete_model, MODEL_CLASSES, models_store
-from .http import HttpStatus
 
 
 @api.route('/api/v1/model_classes')
@@ -10,7 +10,7 @@ class model_classes(Resource):
     @staticmethod
     def get():
         try:
-            return get_common_response(list(MODEL_CLASSES.keys()))
+            return get_common_response(get_model_classes())
         except FileNotFoundError as e:
             print(e)
             return get_error_response(e, HttpStatus.NOT_FOUND)
@@ -19,10 +19,10 @@ class model_classes(Resource):
 
 
 delete_parser = reqparse.RequestParser()
-delete_parser.add_argument('model_name', help='Name of model')
+delete_parser.add_argument('model_id', help='Id of model')
 
 delete_fields = api.model('Delete body', {
-    'model_name': fields.String(description='Name of model', default='Ridge()'),
+    'model_id': fields.Integer(description='Id of model', default=1),
 })
 
 
@@ -31,7 +31,7 @@ class models(Resource):
     @staticmethod
     def get():
         try:
-            return get_common_response(list(models_store.keys()))
+            return get_common_response(get_models())
         except FileNotFoundError as e:
             print(e)
             return get_error_response(e, HttpStatus.NOT_FOUND)
@@ -42,7 +42,7 @@ class models(Resource):
     def delete(self):
         try:
             args = delete_parser.parse_args(strict=True)
-            delete_model(args.model_name)
+            delete_model(args.model_id)
             return get_common_response([])
         except FileNotFoundError as e:
             print(e)
@@ -83,11 +83,11 @@ class fit(Resource):
 
 
 predict_parser = reqparse.RequestParser()
-predict_parser.add_argument('model_name', help='Name of model')
+predict_parser.add_argument('model_id', help='Id of model')
 predict_parser.add_argument('x', help='X data with out target', action='append')
 
 predict_fields = api.model('Predict body', {
-    'model_name': fields.String(description='Name of model', default="Ridge()"),
+    'model_id': fields.Integer(description='Id of model', default=1),
     'x': fields.List(fields.List(fields.Float), default=[[1, 2, 3], [2, 2, 3], [3, 2, 1]],
                      description='X data with out target'),
 })
@@ -99,7 +99,7 @@ class predict(Resource):
     def post(self):
         try:
             args = predict_parser.parse_args(strict=True)
-            y_pred = predict_model(args.model_name, fix_list(args.x))
+            y_pred = predict_model(args.model_id, fix_list(args.x))
             return get_common_response(y_pred)
         except FileNotFoundError as e:
             print(e)

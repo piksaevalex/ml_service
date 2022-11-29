@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: ml_service_db
+    image: postgres:10
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5435:5432"
+    expose:
+      - "5435"
+    volumes:
+      - ./db-data/:/var/lib/postgresql/data/
+  server:
+    container_name: ml_service_api
+    image: digibro/ml_service
+    command: python ./main.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      ML_SERVICE_DB_HOST: ml_service_db
+      ML_SERVICE_DB_NAME: postgres
+      ML_SERVICE_DB_USERNAME: postgres
+    volumes:
+      - .:/opt/ml_service

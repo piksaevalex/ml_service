@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-service-db
+  labels:
+    app.kubernetes.io/name: ml-service-db
+    app.kubernetes.io/component: pg
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: ml-service-db
+      protocol: TCP
+      name: ml-service-db
+  selector:
+    app.kubernetes.io/name: ml-service-db
+    app.kubernetes.io/component: pg
