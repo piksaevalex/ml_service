@@ -1,17 +1,36 @@
 # ML Service
 
-## Quick start guide  
-
-### Обязательные действия перед запуском
+### Обязательные действия перед запуском 
+или не такие уж и обязательные
 
 - создай в корне проекта папку `secrets`;
 - создай файл `ml_service_db_password` без расширения с паролем от БД (`postgres`).
-- стяни образ ```docker pull digibro/ml_service```
 
+## Способы запустить сервис
 
+### 1. Docker
+```commandline
+docker-compose up -d
+```
+если образ автоматически не стянулся, то можно стянуть вручную
+```commandline
+docker pull digibro/ml_service
+```
+### 2. Kubernates
+Тестировался с minikube, поэтому для начала 
+```commandline
+minikube start
+```
+Конфиги описания кластера описаны в папке kube
+```commandline
+chmod u+x kubernates.bash
+./kubernates.bash
+```
+### 3. CMD
 #### 1. Для установки зависимостей использовать **poetry**
-
-
+```commandline
+poetry install
+```
 #### 2. Для запуска кода запустить main.py
 ```commandline
 python3 main.py
