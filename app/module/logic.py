@@ -1,11 +1,8 @@
 import pickle
 import numpy as np
 from app.db.models import Model
-from app.db.database import Base, engine, SessionLocal
+from app.db.database import SessionLocal
 from app.module.model_classes import MODEL_CLASSES
-
-print("Creating database .......")
-Base.metadata.create_all(engine)
 
 
 def get_model_classes():
