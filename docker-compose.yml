@@ -23,7 +23,7 @@ services:
       - ./db-data/:/var/lib/postgresql/data/
   server:
     container_name: ml_service_api
-    image: digibro/ml_service
+    image: ml_service
     command: python ./main.py
     depends_on:
       postgres:

@@ -18,8 +18,8 @@ class ServiceDatabaseSettings(AdvancedBaseSettings):
     host: str
     username: str
     password: SecretStr
-    db_name: str = Field(..., env="ml_service_db_name")  # Если не указать имя явно, то будет искать service_db_name
-    port: int = Field(default="5432")
+    db_name: str = Field(..., env="ml_service_db_name")
+    port: int = Field(default="5435")
 
     class Config:
         env_prefix = "ml_service_db_"

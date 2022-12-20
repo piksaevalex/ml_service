@@ -1,8 +1,11 @@
 from flask import jsonify, json
 from flask_restx import Resource, fields, reqparse
-from app.module.logic import get_model_classes, get_models, fit_model, predict_model, delete_model
+from app.module.logic import Logic
 from app.flask_api.http import HttpStatus
 from app import api
+from app.db.database import SessionLocal
+
+logic = Logic(SessionLocal)
 
 
 @api.route('/api/v1/model_classes')
@@ -10,7 +13,7 @@ class model_classes(Resource):
     @staticmethod
     def get():
         try:
-            return get_common_response(get_model_classes())
+            return get_common_response(logic.get_model_classes())
         except FileNotFoundError as e:
             print(e)
             return get_error_response(e, HttpStatus.NOT_FOUND)
@@ -31,7 +34,7 @@ class models(Resource):
     @staticmethod
     def get():
         try:
-            return get_common_response(get_models())
+            return get_common_response(logic.get_models())
         except FileNotFoundError as e:
             print(e)
             return get_error_response(e, HttpStatus.NOT_FOUND)
@@ -42,7 +45,7 @@ class models(Resource):
     def delete(self):
         try:
             args = delete_parser.parse_args(strict=True)
-            delete_model(args.model_id)
+            logic.delete_model(args.model_id)
             return get_common_response([])
         except FileNotFoundError as e:
             print(e)
@@ -72,7 +75,7 @@ class fit(Resource):
         try:
             args = fit_parser.parse_args(strict=True)
             params = json.loads(args.params.replace("'", "\""))
-            model_name = fit_model(args.model_type, params, fix_list(args.x), fix_list(args.y))
+            model_name = logic.fit_model(args.model_type, params, fix_list(args.x), fix_list(args.y))
             return get_common_response(model_name, HttpStatus.CREATED)
         except FileNotFoundError as e:
             print(e)
@@ -99,7 +102,7 @@ class predict(Resource):
     def post(self):
         try:
             args = predict_parser.parse_args(strict=True)
-            y_pred = predict_model(args.model_id, fix_list(args.x))
+            y_pred = logic.predict_model(args.model_id, fix_list(args.x))
             return get_common_response(y_pred)
         except FileNotFoundError as e:
             print(e)
